@@ -1,0 +1,240 @@
+/* Thing_000: a dark room in the Thing 3 world.
+   Sources of truth: ../css/styles.css (tokens, mono labels, hairlines, spectrum rule, concrete texture)
+   and ../js/lamp.js (Bakelite, nickel, the lamp's warm light). Spectral colour is used sparingly. */
+:root {
+  --paper:    #F5F1E6;
+  --black:    #080808;
+  --muted-lt: rgba(245, 241, 230, 0.62);
+  --hair-lt:  rgba(245, 241, 230, 0.16);
+  --ray-1: #E8543A; --ray-2: #E9A63A; --ray-3: #23A88E; --ray-4: #5B57E8;
+  --spectrum: linear-gradient(90deg, #4F46E5 0%, #1C8FE0 18%, #1FB59A 36%, #E8C93E 56%, #EE8A34 74%, #E2433F 100%);
+  --lit-text: #f4e7cd;      /* paper, warmed by the lamp */
+  --sans: "Inter Tight", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --ease: cubic-bezier(.2, .7, .1, 1);
+  /* Concrete: the homepage's two-scale texture recipe */
+  --concrete: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='c'><feTurbulence type='fractalNoise' baseFrequency='.012 .02' numOctaves='4' seed='4' result='a'/><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='9' result='b'/><feBlend in='a' in2='b' mode='multiply'/><feColorMatrix values='0 0 0 0 .55  0 0 0 0 .54  0 0 0 0 .52  0 0 0 -1.6 1.25'/></filter><rect width='100%' height='100%' filter='url(%23c)'/></svg>");
+  --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 .97  0 0 0 0 .92  0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--black);
+  color: var(--paper);
+  font-family: var(--sans);
+  font-size: 18px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+body[data-at="results"] { overflow: auto; }
+p { margin: 0; }
+a { color: inherit; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 1.5px solid var(--muted-lt); outline-offset: 4px; }
+.mono { font-family: var(--mono); font-size: 12px; line-height: 1.5; letter-spacing: .12em; text-transform: uppercase; font-weight: 400; }
+.noscript { padding: 40px; }
+
+/* ---------- The room: darkness with depth, not flat black ---------- */
+.room { position: fixed; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 75% 65% at 50% 47%, #0f0f10 0%, #09090a 50%, #040404 100%);
+}
+.room::after {
+  content: ""; position: absolute; inset: 0;
+  background-image: var(--concrete); opacity: .05; mix-blend-mode: screen;
+}
+
+/* ---------- Text scenes ---------- */
+.scene[hidden] { display: none !important; }
+/* Centred when there's room, scrollable (never cut off) when there isn't */
+.scene { position: fixed; inset: 0; display: flex; overflow-y: auto; padding: 24px; transition: opacity .45s ease; }
+.scene > .scene-inner { margin: auto; }
+.scene.is-leaving { opacity: 0; }
+.scene-inner { width: min(34em, 100%); animation: rise 1.2s var(--ease) both; }
+.label {
+  display: flex; align-items: center; gap: 16px; color: rgba(245,241,230,.45); font-size: 11px; margin-bottom: 26px;
+}
+.label span { color: var(--paper); }
+.label::after { content: ""; flex: 0 1 90px; height: 1px; background: currentColor; opacity: .5; }
+.title { font-size: clamp(34px, 4.2vw, 58px); font-weight: 500; line-height: 1.02; letter-spacing: -0.03em; }
+.rule { display: flex; align-items: center; gap: 14px; margin: 22px 0 26px; }
+.rule-spectrum { width: 33%; height: 4px; background: var(--spectrum); filter: saturate(.9); opacity: .9; }
+.rule-line { flex: 1; height: 1px; background: var(--paper); opacity: .22; }
+.line { color: rgba(245,241,230,.72); font-weight: 300; font-size: clamp(17px, 1.4vw, 20px); }
+.part .line { margin-top: 18px; }
+.go {
+  display: inline-flex; align-items: center; gap: 12px; margin-top: 40px;
+  background: none; border: 0; padding: 0 0 6px; cursor: pointer; color: var(--muted-lt);
+  border-bottom: 1px solid var(--hair-lt); transition: color .3s, border-color .3s;
+}
+.go::after { content: "→"; letter-spacing: 0; transition: transform .3s var(--ease); }
+.go:hover, .go:focus-visible { color: var(--paper); border-color: var(--muted-lt); }
+.go:hover::after { transform: translateX(4px); }
+.back { position: fixed; left: 24px; top: 22px; text-decoration: none; color: rgba(245,241,230,.38); font-size: 10.5px; }
+.back:hover { color: var(--paper); }
+.gate .back { position: static; display: inline-block; margin-top: 22px; }
+.handover .line + .line { margin-top: 6px; }
+.quiet {
+  position: fixed; right: 22px; bottom: 20px;
+  background: none; border: 0; cursor: pointer; font-size: 10px; color: rgba(245,241,230,.25);
+}
+.quiet:hover, .quiet:focus-visible { color: var(--paper); }
+
+/* Consent and the last question (pilot) */
+.label b { font-weight: 400; color: inherit; }
+.consent-lines .line { font-size: clamp(15px, 1.15vw, 17px); margin-top: 12px; }
+.consent .title, .finish .title { margin-bottom: 4px; }
+.field { display: grid; gap: 10px; margin: 26px 0 0; padding: 0; border: 0; min-width: 0; }
+.field legend { padding: 0; margin-bottom: 10px; }
+.field .mono, .field legend.mono { color: rgba(245,241,230,.5); font-size: 11px; }
+.field input[type="text"] {
+  background: transparent; border: 0; border-bottom: 1px solid var(--hair-lt); color: var(--paper);
+  font: 300 22px var(--sans); padding: 6px 0 8px; outline: none; max-width: 16em;
+}
+.field input[type="text"]:focus { border-bottom-color: var(--muted-lt); }
+.choice { display: flex; align-items: center; gap: 10px; color: rgba(245,241,230,.78); font-weight: 300; cursor: pointer; padding: 3px 0; }
+.choice input { accent-color: var(--ray-2); width: 16px; height: 16px; margin: 0; }
+.go:disabled { opacity: .4; cursor: default; }
+.status { min-height: 1.5em; margin-top: 18px; }
+.small { font-size: 13px; color: rgba(245,241,230,.45); margin-top: 22px; }
+.is-pilot .back { display: none; }
+
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ---------- Exploration ---------- */
+.explore { padding: 0; display: block; overflow: hidden; }
+.explore.is-lit, .explore.is-lit * { cursor: none; }
+.explore::after {           /* end of exploration: fade to black */
+  content: ""; position: absolute; inset: 0; background: #000; opacity: 0; pointer-events: none; z-index: 20;
+  transition: opacity 1.4s ease;
+}
+.explore.is-ending::after { opacity: 1; }
+
+.stage { position: absolute; left: 0; top: 0; transform-origin: 0 0; pointer-events: none; }
+.layer { position: absolute; inset: 0; }
+.frag {
+  position: absolute; margin: 0;
+  font-family: var(--sans); font-weight: 400; letter-spacing: -0.005em;
+  text-align: center; text-wrap: balance; user-select: none;
+}
+/* Before the light: present in the dark, too dim to make out (colour and blur set from content.js) */
+.dim .frag { text-shadow: 0 0 6px rgba(0,0,0,.6); }
+
+/* Film grain over the dark: hides letterforms, keeps the shapes */
+.grain { position: absolute; inset: -40px; pointer-events: none; background-image: var(--grain); opacity: .085; mix-blend-mode: screen; }
+
+/* What the light falls on: cool grey concrete, only inside the beam (opacity follows the lamp's warm-up) */
+.material {
+  position: absolute; inset: 0; pointer-events: none; display: none;
+  background:
+    var(--concrete),
+    radial-gradient(ellipse at 50% 50%, #5a5c5f, #45474a 70%);
+  background-blend-mode: multiply, normal;
+}
+.is-lit .material { display: block; }
+.lit { display: none; }
+/* Revealed text: bright under the light. Same weight as the dim layer, so both wrap identically. */
+.lit .frag { color: #fbf9f4; text-shadow: 0 0 1px rgba(0,0,0,.35); }
+.is-lit .lit { display: block; }
+/* Air: light in the room, reflector rings, the spectral fringe and dust (drawn by explore.js) */
+.air { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; mix-blend-mode: screen; display: none; }
+.is-lit .air { display: block; }
+
+/* Centre: the switch sits exactly at the stage centre */
+.stage-top { z-index: 5; }
+.centre { position: absolute; left: 50%; top: 50%; width: 0; height: 0; }
+/* The switch: its centre (the toggle's pivot) is the stage centre */
+.switch {
+  position: absolute; left: 0; top: 0; transform: translate(-50%, -50%);
+  width: 110px; height: 154px; padding: 0; border: 0; background: none; cursor: pointer; pointer-events: auto;
+}
+.switch svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.switch .sw-on { display: none; }
+.switch.is-on .sw-on { display: inline; }
+.switch.is-on .sw-off { display: none; }
+/* the neon locator breathes slightly, and goes out when the light comes on */
+.switch .sw-neon { animation: neon 3.6s ease-in-out infinite; }
+.switch.is-on .sw-neon { animation: none; opacity: 0; transition: opacity .2s; }
+@keyframes neon { 0%, 100% { opacity: .75; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .switch .sw-neon { animation: none; } }
+.switch .sw-plate { transition: filter .3s; }
+.switch:not(:disabled):hover .sw-plate { filter: brightness(1.25); }
+.switch:focus-visible { outline-offset: 2px; border-radius: 10px; }
+.switch:disabled { cursor: none; opacity: .65; transition: opacity 2s ease 1s; }
+
+/* Sound toggle */
+.sound {
+  position: fixed; right: 24px; top: 20px; z-index: 30;
+  background: none; border: 0; padding: 4px 0; cursor: pointer; font-size: 10.5px; color: rgba(245,241,230,.38);
+  transition: opacity 1.2s ease, color .3s;
+}
+.sound::before { content: "♪ "; letter-spacing: 0; }
+.sound[aria-pressed="false"] { text-decoration: line-through; }
+.sound:hover, .sound:focus-visible { color: var(--paper); }
+.t0-lit .sound { opacity: 0; pointer-events: none; }
+body[data-at="results"] .sound, body[data-at="handover"] .sound, body[data-at="finish"] .sound { display: none; }
+
+/* Micro-labels: the homepage's numbered mono labels and hairlines */
+.corner { position: absolute; z-index: 6; pointer-events: none; color: rgba(245,241,230,.34); font-size: 10.5px; }
+.corner-tl { left: 24px; top: 22px; display: flex; align-items: center; gap: 14px; transition: opacity 1.2s ease; }
+.is-lit .corner-tl { opacity: 0; }   /* no extra mark near any one fragment while exploring */
+.corner-tl span { color: rgba(245,241,230,.62); }
+.corner-tl::after { content: ""; width: 60px; height: 1px; background: currentColor; opacity: .6; }
+.corner-br {
+  right: 30px; bottom: 26px; display: none; align-items: center; gap: 16px;
+  font-size: 20px; letter-spacing: .06em; color: rgba(245,241,230,.78); font-variant-numeric: tabular-nums;
+}
+.is-lit .corner-br { display: flex; }
+.meter { position: relative; width: 130px; height: 2px; background: rgba(245,241,230,.14); overflow: hidden; }
+.meter i { position: absolute; inset: 0; background: var(--spectrum); opacity: .8; transform-origin: 0 50%; }
+
+.paused { position: absolute; z-index: 6; left: 50%; top: 22px; transform: translateX(-50%); font-size: 10.5px; color: var(--muted-lt); }
+
+/* ?debug: padded hit regions */
+.debug-layer { position: absolute; inset: 0; pointer-events: none; }
+.dbg-box { position: absolute; border: 1px dashed rgba(120,200,255,.5); }
+.dbg-box.is-e { border-color: rgba(233,166,58,.8); }
+.dbg-box span { position: absolute; left: 4px; top: -18px; font: 11px var(--mono); color: rgba(120,200,255,.8); white-space: nowrap; }
+
+/* ---------- Researcher results (plain on purpose) ---------- */
+.results { display: block; overflow: auto; place-items: initial; padding: 0; }
+.results-inner { max-width: 1400px; margin: 0 auto; padding: 40px 28px 80px; font-size: 14px; }
+.results h2 { font-size: 12px; font-family: var(--mono); letter-spacing: .12em; text-transform: uppercase; font-weight: 500; color: var(--ray-2); margin: 34px 0 10px; }
+.r-head { border-bottom: 1px solid var(--hair-lt); padding-bottom: 12px; }
+.hint { color: rgba(245,241,230,.5); font-size: 12px; }
+.muted { color: rgba(245,241,230,.45); }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 6px 22px; margin: 0; }
+.kv dt { color: rgba(245,241,230,.55); }
+.kv dd { margin: 0; }
+.scroll { overflow-x: auto; }
+.tbl { border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.tbl th, .tbl td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--hair-lt); vertical-align: top; }
+.tbl th { font-weight: 500; font-size: 12px; color: rgba(245,241,230,.6); }
+.tbl-wide { font-size: 13px; white-space: nowrap; }
+.tbl-wide td:nth-child(2) { white-space: normal; min-width: 180px; }
+.tbl tr.is-e td { background: rgba(233,166,58,.08); }
+.badge { display: inline-block; padding: 0 6px; border-radius: 3px; background: var(--ray-2); color: #000; font: 11px var(--mono); }
+.path { width: 100%; max-width: 760px; display: block; border: 1px solid var(--hair-lt); }
+.checks { padding-left: 18px; margin: 0; }
+.checks li { margin: 4px 0; }
+.actions { margin: 10px 0; }
+.actions button, .tester button {
+  background: none; border: 1px solid var(--hair-lt); border-radius: 4px; padding: 7px 12px; cursor: pointer; margin: 0 6px 6px 0;
+}
+.actions button:hover, .tester button:hover { border-color: var(--muted-lt); }
+.actions .danger { color: #e8836f; }
+.tester { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: end; }
+.tester label { display: grid; gap: 4px; font-size: 12px; color: rgba(245,241,230,.6); }
+.tester .wide { flex: 1 1 280px; }
+.tester input, .tester select {
+  background: #15110d; border: 1px solid var(--hair-lt); color: var(--paper); padding: 6px 8px; border-radius: 4px; font: 14px var(--sans);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-inner { animation: none; }
+  .scene { transition: none; }
+  .explore::after { transition-duration: .2s; }
+}

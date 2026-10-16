@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Thing_000 — Thing 3</title>
+  <meta name="description" content="Thing_000: an interactive piece by Thing 3. Working prototype, Stage 1.">
+  <!-- Working prototype: do not index -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#080808">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter+Tight:wght@300;400;500&display=swap">
+
+  <link rel="stylesheet" href="css/thing.css">
+</head>
+<body>
+  <!-- The room: depth and material behind every scene -->
+  <div class="room" aria-hidden="true"></div>
+
+  <!-- Sound toggle: available before the light; hidden while exploring so it sits near no fragment -->
+  <button class="sound mono" type="button" data-sound aria-pressed="true">Sound on</button>
+
+  <!-- Desktop only for now: the light needs a mouse or trackpad -->
+  <section class="scene gate" data-scene="gate" hidden>
+    <div class="scene-inner">
+      <p class="label mono"><span>000</span>Thing_000</p>
+      <p class="line">This piece needs a mouse or trackpad for now. Please open it on a laptop or desktop.</p>
+      <a class="back mono" href="../index.html">← Thing 3</a>
+    </div>
+  </section>
+
+  <!-- Pilot only: consent and first name before anything else -->
+  <section class="scene consent" data-scene="consent" hidden>
+    <form class="scene-inner" data-consent>
+      <p class="label mono"><span>000</span><b data-copy="consentLabel"></b></p>
+      <p class="title" data-copy="consentTitle"></p>
+      <div class="consent-lines" data-copy="consentLines"></div>
+      <label class="field">
+        <span class="mono" data-copy="nameLabel"></span>
+        <input name="firstname" type="text" maxlength="40" autocomplete="given-name" spellcheck="false" required>
+      </label>
+      <fieldset class="field">
+        <legend class="mono" data-copy="deviceLabel"></legend>
+        <label class="choice"><input type="radio" name="input" value="mouse" required> Mouse</label>
+        <label class="choice"><input type="radio" name="input" value="trackpad"> Trackpad</label>
+      </fieldset>
+      <button class="go mono" type="submit" data-copy="agree"></button>
+    </form>
+  </section>
+
+  <section class="scene intro" data-scene="intro" hidden>
+    <div class="scene-inner">
+      <p class="label mono"><span>000</span>Working prototype</p>
+      <p class="title" data-copy="title"></p>
+      <div class="rule" aria-hidden="true"><span class="rule-spectrum"></span><span class="rule-line"></span></div>
+      <div data-copy="lines"></div>
+      <button class="go mono" type="button" data-next="part">Begin</button>
+    </div>
+    <a class="back mono" href="../index.html">← Thing 3</a>
+  </section>
+
+  <section class="scene part" data-scene="part" hidden>
+    <div class="scene-inner">
+      <p class="label mono"><span>01</span>Thing_000</p>
+      <p class="title" data-copy="part"></p>
+      <p class="line" data-copy="partNote"></p>
+      <button class="go mono" type="button" data-next="explore">Continue</button>
+    </div>
+  </section>
+
+  <section class="scene explore" data-scene="explore" hidden aria-label="Exploration. Turn on the light, then move it across the page to read the text fragments.">
+    <!-- Layer order: dim text → grain → lit surface → lit text → air (light, rings, fringe, dust) → switch -->
+    <div class="stage" data-stage-dim aria-hidden="true"><div class="layer dim" data-dim></div></div>
+    <div class="grain" aria-hidden="true"></div>
+    <div class="material" data-material aria-hidden="true"></div>
+    <div class="stage" data-stage-lit aria-hidden="true"><div class="layer lit" data-lit></div></div>
+    <canvas class="air" data-air aria-hidden="true"></canvas>
+    <div class="stage stage-top" data-stage-top>
+      <div class="centre">
+        <!-- A real wall switch: matte charcoal plate, steel toggle, and a neon locator that glows in the dark
+             until the light is on. The toggle's pivot is the centre of the ring, so the light starts equidistant from every fragment. -->
+        <button class="switch" type="button" data-switch aria-pressed="false" aria-label="Turn the light on">
+          <svg viewBox="-55 -77 110 154" aria-hidden="true" focusable="false">
+            <defs>
+              <linearGradient id="sw-plate" x1="0" y1="0" x2=".35" y2="1">
+                <stop offset="0" stop-color="#2e2e31"/><stop offset=".55" stop-color="#1d1d1f"/><stop offset="1" stop-color="#141415"/>
+              </linearGradient>
+              <linearGradient id="sw-edge" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset=".5" stop-color="#fff" stop-opacity=".02"/><stop offset="1" stop-color="#000" stop-opacity=".5"/>
+              </linearGradient>
+              <radialGradient id="sw-steel" cx=".35" cy=".3" r=".8">
+                <stop offset="0" stop-color="#e9e9ea"/><stop offset=".35" stop-color="#9b9c9f"/><stop offset=".75" stop-color="#4b4c4f"/><stop offset="1" stop-color="#2a2a2c"/>
+              </radialGradient>
+              <linearGradient id="sw-bat" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#55565a"/><stop offset=".3" stop-color="#d6d7d9"/><stop offset=".45" stop-color="#f4f4f5"/><stop offset=".7" stop-color="#8d8e92"/><stop offset="1" stop-color="#3c3d40"/>
+              </linearGradient>
+              <radialGradient id="sw-neon" cx=".5" cy=".5" r=".5">
+                <stop offset="0" stop-color="#ffd2a8"/><stop offset=".4" stop-color="#ff8a3d"/><stop offset="1" stop-color="#ff6a1a" stop-opacity="0"/>
+              </radialGradient>
+              <filter id="sw-shadow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+              <filter id="sw-soft" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="1.6"/></filter>
+            </defs>
+            <!-- plate, shadow on the wall, bevelled edge -->
+            <rect x="-40" y="-56" width="88" height="122" rx="9" fill="#000" opacity=".75" filter="url(#sw-shadow)"/>
+            <rect class="sw-plate" x="-44" y="-62" width="88" height="124" rx="9" fill="url(#sw-plate)"/>
+            <rect x="-44" y="-62" width="88" height="124" rx="9" fill="none" stroke="url(#sw-edge)" stroke-width="1.6"/>
+            <rect x="-41.5" y="-59.5" width="83" height="119" rx="7" fill="none" stroke="rgba(0,0,0,.35)" stroke-width=".8"/>
+            <!-- screws -->
+            <g>
+              <circle cx="0" cy="-49" r="3.6" fill="url(#sw-steel)" stroke="rgba(0,0,0,.5)" stroke-width=".5"/>
+              <line x1="-2.6" y1="-48.2" x2="2.6" y2="-49.8" stroke="rgba(0,0,0,.65)" stroke-width=".9"/>
+              <circle cx="0" cy="49" r="3.6" fill="url(#sw-steel)" stroke="rgba(0,0,0,.5)" stroke-width=".5"/>
+              <line x1="-2.2" y1="47" x2="2.2" y2="51" stroke="rgba(0,0,0,.65)" stroke-width=".9"/>
+            </g>
+            <!-- neon locator: glows faintly in the dark until the switch is used -->
+            <g class="sw-neon">
+              <circle cx="0" cy="-32" r="7" fill="url(#sw-neon)" opacity=".55" filter="url(#sw-soft)"/>
+              <circle cx="0" cy="-32" r="1.9" fill="#ffb27a"/>
+            </g>
+            <circle cx="0" cy="-32" r="2.6" fill="none" stroke="rgba(255,255,255,.08)" stroke-width=".6"/>
+            <!-- toggle: lever shadow, collar, lever (down = off, up = on) -->
+            <g class="sw-off">
+              <path d="M-3.4 3 L-4.6 31 Q0 36 4.6 31 L3.4 3 Z" fill="#000" opacity=".55" transform="translate(3 4)" filter="url(#sw-soft)"/>
+            </g>
+            <g class="sw-on">
+              <path d="M-3.4 -3 L-4.6 -31 Q0 -36 4.6 -31 L3.4 -3 Z" fill="#000" opacity=".4" transform="translate(3 6)" filter="url(#sw-soft)"/>
+            </g>
+            <circle cx="0" cy="0" r="10.5" fill="url(#sw-steel)" stroke="rgba(0,0,0,.6)" stroke-width=".6"/>
+            <circle cx="0" cy="0" r="6" fill="#1a1a1c" stroke="rgba(255,255,255,.12)" stroke-width=".5"/>
+            <g class="sw-off">
+              <path d="M-3.2 0 L-4.4 28 Q0 33 4.4 28 L3.2 0 Z" fill="url(#sw-bat)" stroke="rgba(0,0,0,.45)" stroke-width=".5"/>
+              <ellipse cx="0" cy="29.5" rx="4.2" ry="2" fill="#c9cacc" opacity=".55"/>
+            </g>
+            <g class="sw-on">
+              <path d="M-3.2 0 L-4.4 -28 Q0 -33 4.4 -28 L3.2 0 Z" fill="url(#sw-bat)" stroke="rgba(0,0,0,.45)" stroke-width=".5"/>
+              <ellipse cx="0" cy="-29.5" rx="4.2" ry="2" fill="#f2f2f3" opacity=".7"/>
+            </g>
+          </svg>
+        </button>
+      </div>
+      <div class="debug-layer" data-debug-layer hidden></div>
+    </div>
+    <p class="corner corner-tl mono" aria-hidden="true"><span>000</span>Part 1</p>
+    <div class="corner corner-br mono" aria-hidden="true">
+      <span class="meter"><i data-meter></i></span><span class="clock" data-timer></span>
+    </div>
+    <p class="paused mono" data-paused hidden>Paused · move back into the window</p>
+  </section>
+
+  <section class="scene handover" data-scene="handover" hidden>
+    <div class="scene-inner" data-copy="handover"></div>
+    <button class="quiet mono" type="button" data-next="results">Results · for the researcher</button>
+  </section>
+
+  <!-- Pilot only: the last question, then the session is sent -->
+  <section class="scene finish" data-scene="finish" hidden>
+    <form class="scene-inner" data-finish>
+      <p class="title" data-copy="endTitle"></p>
+      <fieldset class="field">
+        <legend class="line" data-copy="endQuestion"></legend>
+        <div data-copy="endOptions"></div>
+      </fieldset>
+      <button class="go mono" type="submit" data-finish-btn data-copy="finish"></button>
+      <p class="line status" data-status aria-live="polite"></p>
+      <p class="line small" data-copy="endAsk"></p>
+    </form>
+  </section>
+
+  <section class="scene results" data-scene="results" hidden>
+    <div class="results-inner" data-results></div>
+  </section>
+
+  <noscript><p class="noscript">Thing_000 needs JavaScript.</p></noscript>
+
+  <script src="js/content.js"></script>
+  <script src="js/tracker.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/explore.js"></script>
+  <script src="js/results.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
