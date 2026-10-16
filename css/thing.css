@@ -183,13 +183,20 @@ body[data-at="results"] .sound, body[data-at="handover"] .sound, body[data-at="f
 .is-lit .corner-tl { opacity: 0; }   /* no extra mark near any one fragment while exploring */
 .corner-tl span { color: rgba(245,241,230,.62); }
 .corner-tl::after { content: ""; width: 60px; height: 1px; background: currentColor; opacity: .6; }
-.corner-br {
-  right: 30px; bottom: 26px; display: none; align-items: center; gap: 16px;
-  font-size: 20px; letter-spacing: .06em; color: rgba(245,241,230,.78); font-variant-numeric: tabular-nums;
+/* Time left: a ring around the switch (stage units), visible once the light is on */
+.ring {
+  position: absolute; left: 0; top: 0; width: 240px; height: 240px; transform: translate(-50%, -50%);
+  overflow: visible; pointer-events: none; opacity: 0; transition: opacity 1.4s ease .8s;
 }
-.is-lit .corner-br { display: flex; }
-.meter { position: relative; width: 130px; height: 2px; background: rgba(245,241,230,.14); overflow: hidden; }
-.meter i { position: absolute; inset: 0; background: var(--spectrum); opacity: .8; transform-origin: 0 50%; }
+.is-lit .ring { opacity: 1; }
+.ring-track { fill: none; stroke: rgba(245,241,230,.09); stroke-width: 1.4; }
+.ring-fill { fill: none; stroke: url(#ring-spec); stroke-width: 2.2; stroke-linecap: round; stroke-dasharray: 1000; stroke-dashoffset: 0; opacity: .85; }
+.ring-time {
+  position: absolute; left: 0; top: 128px; transform: translateX(-50%); margin: 0;
+  font-size: 17px; letter-spacing: .08em; color: rgba(245,241,230,.62); font-variant-numeric: tabular-nums;
+  opacity: 0; transition: opacity 1.4s ease .8s; white-space: nowrap;
+}
+.is-lit .ring-time { opacity: 1; }
 
 .paused { position: absolute; z-index: 6; left: 50%; top: 22px; transform: translateX(-50%); font-size: 10.5px; color: var(--muted-lt); }
 
@@ -217,6 +224,13 @@ body[data-at="results"] .sound, body[data-at="handover"] .sound, body[data-at="f
 .tbl-wide td:nth-child(2) { white-space: normal; min-width: 180px; }
 .tbl tr.is-e td { background: rgba(233,166,58,.08); }
 .badge { display: inline-block; padding: 0 6px; border-radius: 3px; background: var(--ray-2); color: #000; font: 11px var(--mono); }
+.flag { margin: 0 0 12px; padding: 10px 14px; border-left: 2px solid var(--ray-2); background: rgba(233,166,58,.07); font-size: 13.5px; }
+.warn { color: var(--ray-2); font-size: 12px; white-space: nowrap; }
+.note-box { margin-top: 16px; max-width: 640px; }
+.note-box textarea {
+  display: block; width: 100%; margin-top: 6px; background: #15110d; border: 1px solid var(--hair-lt); border-radius: 4px;
+  color: var(--paper); font: 14px/1.5 var(--sans); padding: 8px 10px; resize: vertical;
+}
 .path { width: 100%; max-width: 760px; display: block; border: 1px solid var(--hair-lt); }
 .checks { padding-left: 18px; margin: 0; }
 .checks li { margin: 4px 0; }

@@ -37,7 +37,7 @@
       '<dl class="kv">' +
         '<dt>Session</dt><dd>' + esc(session.id) + ' · ' + esc(session.startedAt) + '</dd>' +
         '<dt>Versions</dt><dd>app ' + esc(session.app) + ' · copy ' + esc(session.copy) + ' (' + esc(session.copyHash) + ')</dd>' +
-        '<dt>Window</dt><dd>' + session.config.durationSec + ' s · tracked ' + s(d.trackedMs) + ' s · paused ' + s(d.pausedMs) + ' s · idle ' + s(d.idleMs) + ' s · lost ' + s(d.lostMs) + ' s</dd>' +
+        '<dt>Window</dt><dd>' + session.config.durationSec + ' s · tracked ' + s(d.trackedMs) + ' s · paused ' + s(d.pausedMs) + ' s · idle (mouse still > ' + d.thresholds.idleMs / 1000 + ' s) ' + s(d.idleMs) + ' s · lost ' + s(d.lostMs) + ' s</dd>' +
         '<dt>Before switch</dt><dd>' + s(session.timeline.preSwitchMs) + ' s</dd>' +
         '<dt>All 8 touched</dt><dd>' + touched + '</dd>' +
         '<dt>All 8 plausibly read</dt><dd>' + cov + ' <span class="hint">(≥ ' + d.thresholds.readMs + ' ms each, provisional)</span></dd>' +
@@ -136,6 +136,19 @@
       '</dl>';
   }
 
+  function noteBox(note) {
+    return '<div class="note-box"><label class="hint" for="t0-note">Your notes on this session (only you see these)</label>' +
+      '<textarea id="t0-note" data-note rows="3" maxlength="2000" placeholder="e.g. knows me; I watched; got interrupted…">' + esc(note || '') + '</textarea>' +
+      '<p class="actions"><button type="button" data-act="save-note">Save note</button> <span class="hint" data-note-status></span></p></div>';
+  }
+
+  function idleFlag(d) {
+    if (d.idleShare < 0.15) return '';
+    return '<p class="flag">⚠ The mouse sat still for ' + Math.round(d.idleShare * 100) + '% of this session' +
+      (d.postIdleMs ? ' (' + s(d.postIdleMs) + ' s of it after seeing all eight)' : '') +
+      '. Still time is left out of “after seeing all eight”, but read this session with care.</p>';
+  }
+
   window.T0Results = {
     // opts.readOnly: the private pilot results page (no editing, no local-storage actions); opts.head: extra header HTML
     render: function (root, session, store, opts) {
@@ -144,8 +157,8 @@
       var d = TR.derive(session);
       if (opts.readOnly) {
         root.innerHTML = (opts.head || '') +
-          '<h2>Tester</h2>' + testerInfo(session) +
-          '<h2>Summary</h2>' + summary(session, d) +
+          '<h2>Tester</h2>' + testerInfo(session) + (opts.onNote ? noteBox(opts.note) : '') +
+          '<h2>Summary</h2>' + idleFlag(d) + summary(session, d) +
           '<h2>E against the seven controls</h2>' + convergence(d) +
           '<h2>Fragments, by total dwell</h2><div class="scroll">' + fragments(d) + '</div>' +
           '<h2>Path</h2><canvas class="path" data-path></canvas><p class="hint">The light’s centre over time: blue = early, amber = late. E is dashed.</p>' +
@@ -159,6 +172,11 @@
           if (act === 'json-one') store.download('thing000-' + session.id + '.json', JSON.stringify(session), 'application/json');
           if (act === 'csv-one') store.download('thing000-' + session.id + '.csv', TR.toCSV([session]), 'text/csv');
           if (act === 'delete') opts.onDelete(session);
+          if (act === 'save-note') {
+            var st = root.querySelector('[data-note-status]');
+            st.textContent = 'Saving…';
+            opts.onNote(session, root.querySelector('[data-note]').value, function (ok) { st.textContent = ok ? 'Saved.' : 'Not saved. Try again.'; });
+          }
         };
         return;
       }

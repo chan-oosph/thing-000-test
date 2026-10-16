@@ -182,7 +182,7 @@
      spectral fringe sit in the falloff; dust drifts through it. All of it is identical wherever the
      light points, so no fragment is lit differently from another. */
   function toStage(x, y) { return [(x - offX) / scale, (y - offY) / scale]; }
-  var tx = 0, ty = 0, level = 0, lastT = 0, motes = [], ctx = null, dpr = 1;
+  var tx = 0, ty = 0, level = 0, lastT = 0, motes = [], ctx = null, dpr = 1, dying = false;
   var hot = { x: 0, y: 0 };                   // hotspot offset, stage units
 
   // The warm-up: a few uneven blinks before the lamp holds (≈1 s). Also drives the hum and the
@@ -344,9 +344,16 @@
         return;
       }
       record(t);
-      var left = Math.ceil((dur - active) / 1000);
+      var remain = dur - active, left = Math.ceil(remain / 1000);
       if (left !== lastShownSec) { el.timer.textContent = Math.floor(left / 60) + ':' + ('0' + left % 60).slice(-2); lastShownSec = left; }
-      el.meter.style.transform = 'scaleX(' + Math.max(0, 1 - active / dur) + ')';
+      el.ring.style.strokeDashoffset = String(Math.round(1000 * Math.min(1, active / dur)));
+      // the lamp falters as it runs out: dimmer, with a few uneven dips (and the sound follows)
+      var F = C.beam.fadeMs;
+      if (remain < F) {
+        if (!dying) { dying = true; T0Audio.dying(remain / 1000); }
+        var k = remain / F, dip = (Math.sin(t * 0.021) + Math.sin(t * 0.0137 + 1.3) > 1.35) ? 0.65 : 1;
+        level *= (C.beam.fadeTo + (1 - C.beam.fadeTo) * k) * (reduceMotion ? 1 : dip);
+      }
     }
     if (state === 'on' || state === 'paused') paintLight(n, dt);
     requestAnimationFrame(frame);
@@ -411,7 +418,7 @@
     var open = breaks[breaks.length - 1];
     if (open && open[1] == null) open[1] = open[0];
     el.timer.textContent = '0:00';
-    el.meter.style.transform = 'scaleX(0)';
+    el.ring.style.strokeDashoffset = '1000';
     el.scene.classList.add('is-ending');
     document.body.classList.remove('t0-lit');
     T0Audio.stop();
@@ -447,7 +454,7 @@
       el.canvas = q('[data-air]');
       el.sw = q('[data-switch]');
       el.timer = q('[data-timer]');
-      el.meter = q('[data-meter]');
+      el.ring = q('[data-ring]');
       el.paused = q('[data-paused]');
       el.debug = q('[data-debug-layer]');
 

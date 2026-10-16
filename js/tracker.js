@@ -82,11 +82,12 @@
     return null;
   }
 
-  // Dwell on `id` after time `from` (splits the segment that crosses it).
+  // Active (non-idle) dwell on `id` after time `from` (splits the segment that crosses it).
+  // Idle time is left out: a mouse parked on a fragment after reading everything isn't a choice to linger.
   function dwellAfter(id, segs, from) {
     var sum = 0;
     segs.forEach(function (g) {
-      if (g.id !== id || g.t1 <= from) return;
+      if (g.id !== id || g.idle || g.t1 <= from) return;
       sum += g.t1 - Math.max(g.t0, from);
     });
     return sum;
@@ -168,6 +169,9 @@
       r.postMs = coverageReadAt == null ? null : dwellAfter(r.id, segs, coverageReadAt);
     });
     var postSum = coverageReadAt == null ? null : rows.reduce(function (s, r) { return s + r.postMs; }, 0);
+    var postIdleMs = coverageReadAt == null ? null : segs.reduce(function (s, g) {
+      return s + (g.idle && g.t1 > coverageReadAt ? g.t1 - Math.max(g.t0, coverageReadAt) : 0);
+    }, 0);
     rows.forEach(function (r) { r.postShare = postSum ? r.postMs / postSum : null; });
 
     // first-visit order (1 = first fragment properly visited)
@@ -204,6 +208,7 @@
     return {
       thresholds: th, hitPad: pad,
       trackedMs: trackedMs, idleMs: idleMs, pausedMs: pausedMs, lostMs: seg.lostMs,
+      idleShare: trackedMs ? idleMs / trackedMs : 0, postIdleMs: postIdleMs,
       coverageTouchedAt: coverageTouchedAt, coverageReadAt: coverageReadAt,
       unvisited: rows.filter(function (r) { return r.touchedAt == null; }).map(function (r) { return r.id; }),
       unread: rows.filter(function (r) { return r.readAt == null; }).map(function (r) { return r.id; }),

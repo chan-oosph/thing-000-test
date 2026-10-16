@@ -116,6 +116,22 @@
     })();
   }
 
+  // The last few seconds: the hum sags and stutters, with a couple of ticks, as the lamp gives out.
+  function dying(seconds) {
+    if (!ctx || !humGain) return;
+    var t = ctx.currentTime, g = humGain.gain;
+    g.cancelScheduledValues(t);
+    g.setValueAtTime(S.hum, t);
+    var dips = [0.18, 0.41, 0.62, 0.8];
+    dips.forEach(function (p, i) {
+      var at = t + seconds * p;
+      g.setValueAtTime(S.hum * (0.85 - i * 0.12), at);
+      g.setValueAtTime(S.hum * 0.25, at + 0.05);
+      g.setValueAtTime(S.hum * (0.8 - i * 0.12), at + 0.11);
+      if (i % 2) spark(at + 0.05, 0.3);
+    });
+  }
+
   function stopAll() {
     if (!ctx) return;
     clearTimeout(crackleTimer);
@@ -136,7 +152,7 @@
   }
 
   window.T0Audio = {
-    room: room, click: click, humOn: humOn, stop: stopAll,
+    room: room, click: click, humOn: humOn, dying: dying, stop: stopAll,
     enabled: function () { return enabled; },
     toggle: function () { setEnabled(!enabled); return enabled; }
   };

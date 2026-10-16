@@ -8,7 +8,8 @@
 
   T0.version = {
     app: '0.1.0-stage1',
-    copy: 'copy-2026-10-16c'   // bump by hand whenever fragment wording changes
+    copy: 'copy-2026-10-16d'   // bump by hand whenever fragment wording OR the instructions change
+                               // (c → d: Part 1 instruction reframed; fragments unchanged)
   };
 
   /* ---------- Settings (all easy to change after pilots) ---------- */
@@ -49,7 +50,9 @@
       lagMs: 70,                 // the light follows the hand with a little weight (time constant).
                                  // The tracker records the light's centre, i.e. what was actually lit.
       wander: 0.12,              // the hotspot drifts slowly off-centre by up to this fraction of the radius
-      dust: 320                  // motes in the air, visible only inside the beam (0 to switch off)
+      dust: 320,                 // motes in the air, visible only inside the beam (0 to switch off)
+      fadeMs: 4000,              // the lamp falters and dims over the last few seconds, so the end isn't a surprise
+      fadeTo: 0.55               // brightness at the very end (text stays readable)
     },
     sound: {
       room: 0.05,                // room tone level (0–1)
@@ -130,7 +133,9 @@
       'You start in the dark.'
     ],
     part: 'Part 1: Explore.',
-    partNote: 'You’ll have {n} seconds once your light is on.',
+    // 2026-10-16 (d): no deadline framing. The first pilot tester rushed to "finish" against "You'll have 75
+    // seconds", then asked "what do I do now?" in the free time that matters most (after seeing all eight).
+    partNote: 'Once your light is on, look around until it goes out (a little over a minute). There’s nothing to finish.',
     // 2026-10-16 (Chan): the centre "Explore" word and the "You have N seconds" line after the switch
     // were dropped as repetition. The Part screen says it once; the corner timer does the rest.
     handover: [

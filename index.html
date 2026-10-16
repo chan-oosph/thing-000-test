@@ -79,6 +79,18 @@
     <canvas class="air" data-air aria-hidden="true"></canvas>
     <div class="stage stage-top" data-stage-top>
       <div class="centre">
+        <!-- Time left: a thin ring around the switch that drains as the light burns, with the seconds beneath.
+             In the centre it is equally far from every fragment, and seen each time the light passes. -->
+        <svg class="ring" viewBox="-120 -120 240 240" aria-hidden="true" focusable="false">
+          <defs>
+            <linearGradient id="ring-spec" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#4F46E5"/><stop offset=".2" stop-color="#1C8FE0"/><stop offset=".4" stop-color="#1FB59A"/><stop offset=".6" stop-color="#E8C93E"/><stop offset=".8" stop-color="#EE8A34"/><stop offset="1" stop-color="#E2433F"/>
+            </linearGradient>
+          </defs>
+          <circle class="ring-track" r="104"/>
+          <circle class="ring-fill" r="104" pathLength="1000" data-ring transform="rotate(-90)"/>
+        </svg>
+        <p class="ring-time mono" data-timer aria-hidden="true"></p>
         <!-- A real wall switch: matte charcoal plate, steel toggle, and a neon locator that glows in the dark
              until the light is on. The toggle's pivot is the centre of the ring, so the light starts equidistant from every fragment. -->
         <button class="switch" type="button" data-switch aria-pressed="false" aria-label="Turn the light on">
@@ -143,9 +155,6 @@
       <div class="debug-layer" data-debug-layer hidden></div>
     </div>
     <p class="corner corner-tl mono" aria-hidden="true"><span>000</span>Part 1</p>
-    <div class="corner corner-br mono" aria-hidden="true">
-      <span class="meter"><i data-meter></i></span><span class="clock" data-timer></span>
-    </div>
     <p class="paused mono" data-paused hidden>Paused · move back into the window</p>
   </section>
 
